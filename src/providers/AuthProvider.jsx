@@ -8,12 +8,15 @@ export const AuthContext = createContext(null);
 const AuthProvider = ({ children }) => {
 
     const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(true);
 
     const createUser = (email, password) => {
+        setLoading(true);
         return createUserWithEmailAndPassword(auth, email, password)
     }
 
     const loginUser = (email, password) => {
+        setLoading(true);
         return signInWithEmailAndPassword(auth, email, password)
     }
 
@@ -22,6 +25,7 @@ const AuthProvider = ({ children }) => {
             if (currentUser) {
                 console.log('User logged in:', currentUser);
                 setUser(currentUser);
+                setLoading(false);
             } else {
                 console.log('No user logged in');
                 setUser(null);
@@ -35,6 +39,7 @@ const AuthProvider = ({ children }) => {
     }, [user])
 
     const logoutUser = () => {
+        setLoading(true);
         return signOut(auth)
     }
 
@@ -42,7 +47,8 @@ const AuthProvider = ({ children }) => {
         createUser,
         loginUser,
         logoutUser,
-        user
+        user,
+        loading
     }
     return (
         <AuthContext.Provider value={authInfo}>

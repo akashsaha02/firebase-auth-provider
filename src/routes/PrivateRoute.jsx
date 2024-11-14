@@ -4,9 +4,13 @@ import { Navigate } from 'react-router-dom';
 
 const PrivateRoute = ({ children }) => {
 
-    const { user } = useContext(AuthContext);
+    const { user, loading } = useContext(AuthContext);
 
-    if(user){
+    if (loading) {
+        return <div className="w-10 h-10 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+    }
+
+    if (user) {
         return children
     }
 
