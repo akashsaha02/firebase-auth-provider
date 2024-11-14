@@ -1,10 +1,12 @@
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import auth from '../../firebase/firebase.init';
+import { AuthContext } from '../../providers/AuthProvider';
 
 const Login = () => {
+    const { loginUser } = useContext(AuthContext)
     const emailRef = useRef();
     const [formData, setFormData] = useState({
         email: '',
@@ -22,7 +24,7 @@ const Login = () => {
         e.preventDefault();
         setErrorMessage('');
 
-        signInWithEmailAndPassword(auth, formData.email, formData.password)
+        loginUser( formData.email, formData.password)
             .then((userCredential) => {
                 const user = userCredential.user;
                 console.log('User logged in:', user);

@@ -1,9 +1,12 @@
 import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from 'firebase/auth';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import auth from '../../firebase/firebase.init';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { AuthContext } from '../../providers/AuthProvider';
 
 const Register = () => {
+    const {createUser}=useContext(AuthContext)
+
     const [formData, setFormData] = useState({
         username: '',
         photoUrl: '',
@@ -25,8 +28,10 @@ const Register = () => {
         setErrorMessage('');
         setVerificationMessage('');
 
+        // Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
 
+        // Validate password
         if (!passwordRegex.test(formData.password)) {
             setErrorMessage(
                 'Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.'
@@ -34,15 +39,16 @@ const Register = () => {
             return;
         }
 
-        createUserWithEmailAndPassword(auth, formData.email, formData.password)
+        // Create user using Auth Provider
+        createUser(formData.email, formData.password)
             .then(userCredential => {
                 const user = userCredential.user;
+                console.log(user);
                 console.log('User registered:', user);
                 setSuccess(true);
                 // send email verification address
                 sendEmailVerification(auth.currentUser)
                     .then(() => {
-                        console.log('Verification email sent');
                         setVerificationMessage("Verification email sent");
                     });
                 // update user profile
