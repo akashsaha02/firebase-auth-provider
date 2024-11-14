@@ -18,13 +18,40 @@ const Header = () => {
     }
   };
 
+  const links = <>
+    <NavLink
+      to="/"
+      className={({ isActive }) =>
+        isActive ? 'btn btn-primary' : 'btn btn-ghost'
+      }
+    >
+      Home
+    </NavLink>
+    <NavLink
+      to="/about"
+      className={({ isActive }) =>
+        isActive ? 'btn btn-primary' : 'btn btn-ghost'
+      }
+    >
+      About
+    </NavLink>
+    {
+      user && <NavLink
+        to="/orders"
+        className={({ isActive }) => isActive ? 'btn btn-primary' : 'btn btn-ghost'}
+      >
+        Orders
+      </NavLink>
+    }
+  </>
+
   console.log('Current user:', user);
 
   return (
     <div className="navbar bg-base-100">
-      <div className="navbar-start">
+      <div className="navbar-start items-center">
         <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
+          <div tabIndex={0} role="button" className="mr-3 lg:hidden">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
@@ -44,44 +71,14 @@ const Header = () => {
             tabIndex={0}
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
           >
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                isActive ? 'btn btn-primary' : 'btn btn-ghost'
-              }
-            >
-              Home
-            </NavLink>
-            <NavLink
-              to="/about"
-              className={({ isActive }) =>
-                isActive ? 'btn btn-primary' : 'btn btn-ghost'
-              }
-            >
-              About
-            </NavLink>
+            {links}
           </ul>
         </div>
-        <a className="btn btn-ghost text-xl">daisyUI</a>
+        <a className="text-xl md:text-2xl font-bold">Auth Context</a>
       </div>
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              isActive ? 'btn btn-primary' : 'btn btn-ghost'
-            }
-          >
-            Home
-          </NavLink>
-          <NavLink
-            to="/about"
-            className={({ isActive }) =>
-              isActive ? 'btn btn-primary' : 'btn btn-ghost'
-            }
-          >
-            About
-          </NavLink>
+          {links}
         </ul>
       </div>
       <div className="navbar-end gap-2">
@@ -95,7 +92,7 @@ const Header = () => {
         </NavLink>
         <NavLink
           to={user ? "/" : "/login"}
-          onClick={user? handleLogin : null}
+          onClick={user ? handleLogin : null}
           className={({ isActive }) =>
             isActive ? 'btn btn-secondary' : 'btn btn-ghost'
           }
