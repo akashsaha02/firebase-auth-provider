@@ -5,7 +5,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { AuthContext } from '../../providers/AuthProvider';
 
 const Register = () => {
-    const {createUser}=useContext(AuthContext)
+    const { createUser } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
         username: '',
@@ -46,6 +46,13 @@ const Register = () => {
                 console.log(user);
                 console.log('User registered:', user);
                 setSuccess(true);
+                setFormData({
+                    username: '',
+                    photoUrl: '',
+                    email: '',
+                    password: '',
+                }); // Reset form data
+                e.target.reset();
                 // send email verification address
                 sendEmailVerification(auth.currentUser)
                     .then(() => {

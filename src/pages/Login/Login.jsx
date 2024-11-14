@@ -1,64 +1,37 @@
-import { useContext, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import auth from '../../firebase/firebase.init';
+import { useState, useRef, useContext } from 'react';
 import { AuthContext } from '../../providers/AuthProvider';
+import { FaGoogle } from "react-icons/fa";
 
 const Login = () => {
-    const { loginUser } = useContext(AuthContext)
-    const emailRef = useRef();
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-    });
-    const [errorMessage, setErrorMessage] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [user, setUser] = useState(null);
+    const { user, loginUser, googleSignIn } = useContext(AuthContext);
+    const [formData, setFormData] = useState({ email: '', password: '' });
+    const emailRef = useRef(null);
+    const passwordRef = useRef(null);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData((prevData) => ({ ...prevData, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setErrorMessage('');
-
-        loginUser( formData.email, formData.password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log('User logged in:', user);
-                // Redirect or update UI after login
-                if (!user.emailVerified) {
-                    setErrorMessage('Please verify your email address to continue');
-                    return;
-                }
-                setUser(user);
-            })
-            .catch((error) => {
-                const errorMessage = error.message;
-                console.error('Error logging in:', errorMessage);
-                setErrorMessage(errorMessage);
-                setUser(null);
-            });
-    };
-
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
-
-    const handleForgetPassword = () => {
-        // Add code to handle forgot password
-        const email = emailRef.current.value;
-        if (!email) {
-            setErrorMessage("Please enter your email address to reset your password");
-            return;
+        try {
+            await loginUser(formData.email, formData.password);
+            setFormData({ email: '', password: '' }); // Reset form data
+            emailRef.current.value = '';
+            passwordRef.current.value = '';
+        } catch (error) {
+            console.error('Error logging in:', error.message);
         }
-        sendPasswordResetEmail(auth, email)
-            .then(() => {
-                console.log("Password reset email sent");
-            })
     };
+
+    const handleGoogleSignIn = async () => {
+        try {
+            await googleSignIn();
+        } catch (error) {
+            console.error('Error logging in with Google:', error.message);
+        }
+    }
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
@@ -66,9 +39,8 @@ const Login = () => {
                 <div className="">
                     {user && (
                         <div className="p-4 text-center text-green-600 bg-green-100 rounded-md flex flex-col justify-center items-center gap-2">
-                            <img src={user.photoURL} alt="Avater" className='w-20 rounded-full border-2 border-red-500' />
-                            <p className=""> Logged in successfully! {user.displayName || user.email}</p>
-
+                            <img src={user.photoURL} alt="Avatar" className="w-20 rounded-full border-2 border-red-500" />
+                            <p className="">Logged in successfully! {user.displayName || user.email}</p>
                         </div>
                     )}
                 </div>
@@ -91,51 +63,45 @@ const Login = () => {
                             className="w-full px-4 py-2 mt-1 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                     </div>
-
-                    <div className="relative">
+                    <div>
                         <label htmlFor="password" className="block text-sm font-medium text-gray-600">
                             Password
                         </label>
                         <input
-                            type={showPassword ? 'text' : 'password'}
+                            type="password"
                             name="password"
                             id="password"
+                            ref={passwordRef}
                             value={formData.password}
                             onChange={handleChange}
+                            autoComplete="current-password"
                             required
                             placeholder="Enter your password"
                             className="w-full px-4 py-2 mt-1 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
-                        <button
-                            type="button"
-                            onClick={togglePasswordVisibility}
-                            className="absolute inset-y-0 right-4 mt-6 flex items-center text-gray-600 hover:text-gray-800"
-                        >
-                            {showPassword ? <FaEyeSlash /> : <FaEye />}
-                        </button>
-                    </div>
-
-                    <div className="">
-                        <Link to="" onClick={() => handleForgetPassword()} className="text-sm text-blue-500 hover:underline">
-                            Forgot password?
-                        </Link>
                     </div>
                     <button
                         type="submit"
-                        className="w-full py-2 mt-4 font-semibold text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     >
                         Login
                     </button>
+                    <button
+                        onClick={()=>handleGoogleSignIn()}
+                        className="w-full flex justify-center items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+                        <FaGoogle />
+                        <p className="">Login with Google</p>
+                    </button>
+
+
+                    <p className="text-sm text-center text-gray-600">
+                        Don't have an account?{' '}
+                        <a href="/register" className="text-blue-500 hover:underline">
+                            Register here
+                        </a>
+                    </p>
                 </form>
-
-                <p className="text-sm text-center text-gray-600">
-                    Don’t have an account?{' '}
-                    <a href="/register" className="text-blue-500 hover:underline">
-                        Register
-                    </a>
-                </p>
-
-                {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
             </div>
         </div>
     );
